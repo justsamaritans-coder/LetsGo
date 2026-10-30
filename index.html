@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trip Planning Pilot</title>
+<meta name="description" content="Tell us how you like to travel. A person and an AI plan your trip with you, one slot at a time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#top" id="siteName">Trip Planning Pilot</a>
+    <span class="badge">Pilot</span>
+  </div>
+</header>
+
+<main id="top" class="wrap">
+  <noscript><p class="notice">This form needs JavaScript. Please turn it on and reload.</p></noscript>
+
+  <section class="hero">
+    <h1>A trip plan that sounds like you</h1>
+    <p class="lead">Answer a few questions about how you like to travel. A person and an AI plan your trip with you, one slot at a time, and you decide what goes in.</p>
+  </section>
+
+  <section class="how" aria-labelledby="how-h">
+    <h2 id="how-h">How it works</h2>
+    <ol class="steps">
+      <li><b>Tell us about the trip.</b> Dates, who is going, where from. About 8 minutes.</li>
+      <li><b>Choose where.</b> Know the place? We check the fit. Still deciding? You get three ranked picks.</li>
+      <li><b>Build day by day.</b> For each slot you see one pick and two alternatives.</li>
+      <li><b>Rate the plan.</b> One question: did it feel like you?</li>
+    </ol>
+  </section>
+
+  <form id="intake" novalidate autocomplete="on">
+    <p class="req-note">Fields marked <span class="star" aria-hidden="true">*</span> are required.</p>
+
+    <fieldset>
+      <legend>Your trip</legend>
+
+      <div class="field">
+        <div class="q" id="lbl-when">When can you go? <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="when" role="radiogroup" aria-labelledby="lbl-when"></div>
+        <div class="row" data-if="when=dates">
+          <label class="f">Start date<input type="date" name="tripStart" id="tripStart"></label>
+          <label class="f">End date<input type="date" name="tripEnd" id="tripEnd"></label>
+        </div>
+        <label class="f" data-if="when=month">Which month?
+          <select name="month" id="month"><option value="">Choose a month</option></select>
+        </label>
+        <p class="err" id="err-when" role="alert" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="f" for="days">How many days in total? <span class="star" aria-hidden="true">*</span>
+          <select name="days" id="days"><option value="">Choose</option></select>
+        </label>
+        <p class="err" id="err-days" role="alert" hidden></p>
+      </div>
+
+      <div class="field">
+        <div class="q" id="lbl-who">Who is travelling? <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="who" role="radiogroup" aria-labelledby="lbl-who"></div>
+        <label class="f" data-if="who=friends">How many people, including you?
+          <input type="number" name="groupSize" id="groupSize" min="2" max="40" inputmode="numeric">
+        </label>
+        <div data-if="who=family">
+          <div class="q sub" id="lbl-constraints">Does anyone in the group need extra care?</div>
+          <div class="opts" data-opts="constraints" role="group" aria-labelledby="lbl-constraints"></div>
+        </div>
+        <label class="f" data-if="who=friends,family">Anything we should know about the group?
+          <textarea name="groupNote" id="groupNote" rows="2" maxlength="500" placeholder="For example: two of us do not like long drives"></textarea>
+        </label>
+        <p class="err" id="err-who" role="alert" hidden></p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Where</legend>
+      <div class="row">
+        <label class="f">Starting from <span class="star" aria-hidden="true">*</span>
+          <input type="text" name="from" id="from" maxlength="80" placeholder="City you leave from" autocomplete="address-level2">
+        </label>
+        <label class="f">Where to?
+          <input type="text" name="to" id="to" maxlength="80" placeholder="Place or region">
+        </label>
+      </div>
+      <label class="opt single"><input type="checkbox" name="exploring" id="exploring" value="yes"><span>I am exploring. Help me choose.</span></label>
+      <p class="err" id="err-from" role="alert" hidden></p>
+      <p class="err" id="err-to" role="alert" hidden></p>
+    </fieldset>
+
+    <fieldset data-if="explore=1">
+      <legend>What you want from this trip</legend>
+
+      <div class="field">
+        <div class="q" id="lbl-feel">What feel do you want? Pick up to 2. <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="feel" data-max="2" role="group" aria-labelledby="lbl-feel"></div>
+        <p class="err" id="err-feel" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <div class="q" id="lbl-effort">How far will you travel? <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="effort" role="radiogroup" aria-labelledby="lbl-effort"></div>
+        <p class="err" id="err-effort" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <div class="q" id="lbl-weather">Weather you want <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="weather" role="radiogroup" aria-labelledby="lbl-weather"></div>
+        <p class="err" id="err-weather" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <div class="q" id="lbl-budget">Budget band, total including travel <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="budget" role="radiogroup" aria-labelledby="lbl-budget"></div>
+        <p class="hint">Lean: simple stays, shared transport. Mid: comfortable stays, some treats. Comfortable: good stays, private transfers. Splurge: best available.</p>
+        <p class="err" id="err-budget" role="alert" hidden></p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>How you like to travel</legend>
+
+      <div class="field">
+        <label class="f" for="lovedText">A trip you loved (optional)
+          <textarea name="lovedText" id="lovedText" rows="3" maxlength="600" placeholder="Where, and what made it good. A line is enough."></textarea>
+        </label>
+        <div class="q sub" id="lbl-lovedTags">What did it have?</div>
+        <div class="opts" data-opts="lovedTags" role="group" aria-labelledby="lbl-lovedTags"></div>
+      </div>
+
+      <div class="field">
+        <div class="q" id="lbl-pace">How do you like your days? <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="pace" role="radiogroup" aria-labelledby="lbl-pace"></div>
+        <p class="err" id="err-pace" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <div class="q" id="lbl-vibes">Pick up to two vibes <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="vibes" data-max="2" role="group" aria-labelledby="lbl-vibes"></div>
+        <p class="err" id="err-vibes" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <div class="q" id="lbl-water">How comfortable are you in the water? <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="water" role="radiogroup" aria-labelledby="lbl-water"></div>
+        <p class="err" id="err-water" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <div class="q" id="lbl-why">What is this trip for? <span class="star" aria-hidden="true">*</span></div>
+        <div class="opts" data-opts="why" role="radiogroup" aria-labelledby="lbl-why"></div>
+        <p class="err" id="err-why" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <div class="q" id="lbl-avoid">Anything to avoid?</div>
+        <div class="opts" data-opts="avoid" role="group" aria-labelledby="lbl-avoid"></div>
+      </div>
+    </fieldset>
+
+    <fieldset data-if="explore=0">
+      <legend>What is already fixed</legend>
+      <div class="row">
+        <label class="f">Arrival
+          <select name="arrive" id="arrive"></select>
+        </label>
+        <label class="f">Departure
+          <select name="depart" id="depart"></select>
+        </label>
+      </div>
+      <label class="f">Anything already booked?
+        <textarea name="booked" id="booked" rows="2" maxlength="500" placeholder="Stays, flights, ferries, trains"></textarea>
+      </label>
+      <div class="field">
+        <div class="q" id="lbl-base">How do you want to move?</div>
+        <div class="opts" data-opts="base" role="radiogroup" aria-labelledby="lbl-base"></div>
+      </div>
+    </fieldset>
+    <p class="hint" data-if="explore=1">Once you choose a place, we will ask about flights, bookings and how you want to move.</p>
+
+    <fieldset>
+      <legend>About you</legend>
+      <div class="row">
+        <label class="f">Hours spent planning your last trip
+          <input type="number" name="planHours" id="planHours" min="0" max="200" step="0.5" inputmode="decimal" placeholder="Your best guess">
+        </label>
+      </div>
+      <div class="field">
+        <div class="q sub" id="lbl-planSources">What did you use?</div>
+        <div class="opts" data-opts="planSources" role="group" aria-labelledby="lbl-planSources"></div>
+      </div>
+      <label class="f">How should we reach you? <span class="star" aria-hidden="true">*</span>
+        <input type="text" name="contact" id="contact" maxlength="120" placeholder="WhatsApp number or email" autocomplete="email">
+      </label>
+      <p class="hint">We use this only to send you your plan and ask follow-up questions.</p>
+      <p class="err" id="err-contact" role="alert" hidden></p>
+      <div class="hp" aria-hidden="true"><label>Leave this empty<input type="text" name="website" id="website" tabindex="-1" autocomplete="off"></label></div>
+    </fieldset>
+
+    <div class="consent">
+      <label class="opt single"><input type="checkbox" name="consent" id="consent" value="yes"><span>I understand and agree. <span class="star" aria-hidden="true">*</span></span></label>
+      <p class="hint">Your answers are used only to evaluate this pilot. The plans you receive are drafts and may contain errors. Please check permits, ferry or road schedules and bookings yourself before you travel. You can stop at any time. We do not need your social media accounts, ID numbers or payment details.</p>
+      <p class="err" id="err-consent" role="alert" hidden></p>
+    </div>
+
+    <div class="submitrow">
+      <button type="submit" class="btn" id="submit">Send my answers</button>
+      <p class="err" id="err-submit" role="alert" hidden></p>
+    </div>
+  </form>
+
+  <section id="done" class="done" hidden tabindex="-1" aria-labelledby="done-h">
+    <h2 id="done-h">Thank you, your answers are in</h2>
+    <p id="doneText">We will message you with your next step.</p>
+    <div id="demoBox" hidden>
+      <p class="notice">Demo mode: no endpoint is set in config.js, so nothing was sent. Copy the answers below to test your sheet or workflow.</p>
+      <textarea id="demoOut" class="out" readonly rows="10"></textarea>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn ghost" id="copyBtn">Copy my answers</button>
+      <button type="button" class="btn ghost" id="againBtn">Fill the form again</button>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>This is a pilot. Plans are suggestions made by a person with an AI and may contain mistakes.</p>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
